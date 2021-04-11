@@ -275,7 +275,7 @@ namespace VSAutoModLauncher
         {
             Log("Launching Vintagestory.exe...");
             string path = ResolvePath("%APPDATA%/VintageStory/VintageStory.exe");
-            string args = $"--dataPath \"{ResolvePath(ServerDir)}\""; // " --c {hostname}:{port}";
+            string args = $"--dataPath \"{ResolvePath(ServerDir)}\" --c {hostname}:{port}";
             if (password != "")
             {
                 args += " --pw \"{password}\"";
