@@ -82,7 +82,22 @@ namespace VSAutoModLauncher
             }
         }
         public string SafeName { get { return Path.GetInvalidFileNameChars().Aggregate(name, (current, c) => current.Replace(c, '-')); } }
-        public string ServerDir { get { return $"%APPDATA%/VintagestoryMooltiPack/{SafeName}"; } }
+        public string ConfigDir { get { 
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+                {return $"%HOME%/.config";}
+            else
+                {return $"%APPDATA%"; }
+            } }
+        public string InstallDir { get { 
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+                if (Environment.GetEnvironmentVariable("VINTAGE_STORY") != null )
+                    {return Environment.GetEnvironmentVariable("VINTAGE_STORY");}
+                else
+                    {return "/usr/share/vintagestory";}
+            else
+                {return $"{ConfigDir}/VintageStory"; }
+            } }
+        public string ServerDir { get {return $"{ConfigDir}/VintagestoryMooltiPack/{SafeName}"; } }
         private void InitDataDir(string hostname, int port, string password)
         {
             Directory.CreateDirectory(ResolvePath($"{ServerDir}/Mods"));
@@ -94,7 +109,7 @@ namespace VSAutoModLauncher
             string serverClientSettingsFilePath = $"{ServerDir}/clientsettings.json";
             if (!File.Exists(ResolvePath(serverClientSettingsFilePath)))
             {
-                string defaultClientSettingsFilePath = "%APPDATA%/VintagestoryData/clientsettings.json";
+                string defaultClientSettingsFilePath = $"{ConfigDir}/VintagestoryData/clientsettings.json";
                 Log($"Creating dataPath at {ServerDir}...");
                 if (!File.Exists(ResolvePath(defaultClientSettingsFilePath)))
                 {
@@ -102,20 +117,24 @@ namespace VSAutoModLauncher
                 }
                 File.Copy(ResolvePath(defaultClientSettingsFilePath), ResolvePath(serverClientSettingsFilePath));
                 clientSettings = JsonConvert.DeserializeObject(File.ReadAllText(ResolvePath(serverClientSettingsFilePath)));
+                string serverModDir = ResolvePath($"{ServerDir}/Mods");
+                    if (Environment.OSVersion.Platform != PlatformID.Unix) {
+                        serverModDir = serverModDir.Replace('/', '\\');}
                 clientSettings["stringListSettings"].Replace(new JObject {
                     { "multiplayerservers", new JArray(new[]
                         { multiplayerServerString }
                     ) },
                     { "modPaths", new JArray(new[]
-                        { ResolvePath($"{ServerDir}/Mods").Replace('/', '\\') }
+                        { serverModDir }
                     ) }
                 });
                 File.WriteAllText(ResolvePath(serverClientSettingsFilePath), JsonConvert.SerializeObject(clientSettings, Formatting.Indented));
 
+                // Note: this could probably be avoided by adding the install directory to a modPath
                 var coreModFileNames = new[] { "VSCreativeMod.dll", "VSEssentials.dll", "VSSurvivalMod.dll" };
                 foreach (var coreModFileName in coreModFileNames)
                 {
-                    File.Copy(ResolvePath($"%APPDATA%/Vintagestory/Mods/{coreModFileName}"), ResolvePath($"{ServerDir}/Mods/{coreModFileName}"));
+                    File.Copy(ResolvePath($"{InstallDir}/Mods/{coreModFileName}"), ResolvePath($"{ServerDir}/Mods/{coreModFileName}"));
                 }
             }
             else
@@ -274,7 +293,11 @@ namespace VSAutoModLauncher
         private void StartGame(string hostname, int port, string password)
         {
             Log("Launching Vintagestory.exe...");
-            string path = ResolvePath("%APPDATA%/VintageStory/VintageStory.exe");
+            string path;
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+                { path = ResolvePath($"{InstallDir}/Vintagestory.exe");}
+            else
+                { path = ResolvePath($"{ConfigDir}/VintageStory/VintageStory.exe"); };
             string args = $"--dataPath \"{ResolvePath(ServerDir)}\" --c {hostname}:{port}";
             if (password != "")
             {

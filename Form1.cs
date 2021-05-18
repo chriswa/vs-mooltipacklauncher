@@ -15,6 +15,12 @@ namespace VSAutoModLauncher
         }
 
         private AppData appData;
+        private string ConfigDir { get { 
+            if (Environment.OSVersion.Platform == PlatformID.Unix)
+                {return $"%HOME%/.config";}
+            else
+                {return $"%APPDATA%"; }
+            } }
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -33,7 +39,7 @@ namespace VSAutoModLauncher
 
         private void SaveServerList()
         {
-            Directory.CreateDirectory(ResolvePath("%APPDATA%/VintagestoryMooltiPack"));
+            Directory.CreateDirectory(ResolvePath($"{ConfigDir}/VintagestoryMooltiPack"));
             File.WriteAllText(ResolvePath(AppDataFilePath), JsonConvert.SerializeObject(appData, Formatting.Indented));
         }
 
@@ -66,7 +72,7 @@ namespace VSAutoModLauncher
             this.connectButton.Enabled = true;
         }
 
-        private string AppDataFilePath { get { return "%APPDATA%/VintagestoryMooltiPack/appData.json"; } }
+        private string AppDataFilePath { get { return $"{ConfigDir}/VintagestoryMooltiPack/appData.json"; } }
 
         private string ResolvePath(string path)
         {
