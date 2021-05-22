@@ -1,7 +1,6 @@
 C:\Users\chris\documents\VSAutoModLauncher\bin\Debug\VSAutoModLauncher.exe.config
 C:\Users\chris\documents\VSAutoModLauncher\bin\Debug\VSAutoModLauncher.exe
 C:\Users\chris\documents\VSAutoModLauncher\bin\Debug\VSAutoModLauncher.pdb
-C:\Users\chris\documents\VSAutoModLauncher\obj\Debug\VSAutoModLauncher.csprojAssemblyReference.cache
 C:\Users\chris\documents\VSAutoModLauncher\obj\Debug\VSAutoModLauncher.Form1.resources
 C:\Users\chris\documents\VSAutoModLauncher\obj\Debug\VSAutoModLauncher.Properties.Resources.resources
 C:\Users\chris\documents\VSAutoModLauncher\obj\Debug\VSAutoModLauncher.csproj.GenerateResource.cache

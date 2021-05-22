@@ -21,7 +21,6 @@ C:\Users\chris\documents\VSAutoModLauncher\bin\Release\System.Text.Encodings.Web
 C:\Users\chris\documents\VSAutoModLauncher\bin\Release\System.Text.Json.xml
 C:\Users\chris\documents\VSAutoModLauncher\bin\Release\System.Threading.Tasks.Extensions.xml
 C:\Users\chris\documents\VSAutoModLauncher\bin\Release\System.ValueTuple.xml
-C:\Users\chris\documents\VSAutoModLauncher\obj\Release\VSAutoModLauncher.csprojAssemblyReference.cache
 C:\Users\chris\documents\VSAutoModLauncher\obj\Release\VSAutoModLauncher.Form1.resources
 C:\Users\chris\documents\VSAutoModLauncher\obj\Release\VSAutoModLauncher.Properties.Resources.resources
 C:\Users\chris\documents\VSAutoModLauncher\obj\Release\VSAutoModLauncher.csproj.GenerateResource.cache

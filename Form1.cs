@@ -15,15 +15,27 @@ namespace VSAutoModLauncher
         }
 
         private AppData appData;
-        private string ConfigDir { get { 
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-                {return $"%HOME%/.config";}
+
+        private void LogEnvDir(string dirId, string envVar, string resolvedDir)
+        {
+            console.AppendText($"{dirId}: {resolvedDir}" + Environment.NewLine);
+            if (Environment.GetEnvironmentVariable(envVar) != null)
+            {
+                console.AppendText($"  - specified by ENV \"{envVar}\"" + Environment.NewLine);
+            }
             else
-                {return $"%APPDATA%"; }
-            } }
+            {
+                console.AppendText($"  - defaulted, can be overriden with ENV \"{envVar}\"" + Environment.NewLine);
+            }
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            LogEnvDir("GameInstallDir", "VINTAGE_STORY", Launcher.InstallDir);
+            LogEnvDir("GameDataDir", "VINTAGE_STORY_DATA", Launcher.DataDir);
+            LogEnvDir("MooltiPackDir", "MOOLTIPACK_DATA", Launcher.ConfigDir);
+            console.AppendText($"Loading Server List from {AppDataFilePath}" + Environment.NewLine);
+
             appData = File.Exists(ResolvePath(AppDataFilePath)) ? JsonConvert.DeserializeObject<AppData>(File.ReadAllText(ResolvePath(AppDataFilePath))) : new AppData();
             foreach (var server in appData.serverList)
             {
@@ -39,7 +51,7 @@ namespace VSAutoModLauncher
 
         private void SaveServerList()
         {
-            Directory.CreateDirectory(ResolvePath($"{ConfigDir}/VintagestoryMooltiPack"));
+            Directory.CreateDirectory(ResolvePath($"{Launcher.ConfigDir}"));
             File.WriteAllText(ResolvePath(AppDataFilePath), JsonConvert.SerializeObject(appData, Formatting.Indented));
         }
 
@@ -72,7 +84,7 @@ namespace VSAutoModLauncher
             this.connectButton.Enabled = true;
         }
 
-        private string AppDataFilePath { get { return $"{ConfigDir}/VintagestoryMooltiPack/appData.json"; } }
+        private string AppDataFilePath { get { return $"{Launcher.ConfigDir}/appData.json"; } }
 
         private string ResolvePath(string path)
         {

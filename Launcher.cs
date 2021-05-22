@@ -82,22 +82,37 @@ namespace VSAutoModLauncher
             }
         }
         public string SafeName { get { return Path.GetInvalidFileNameChars().Aggregate(name, (current, c) => current.Replace(c, '-')); } }
-        public string ConfigDir { get { 
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-                {return $"%HOME%/.config";}
+        public static string ConfigDir { get { 
+            var dirFromEnv = Environment.GetEnvironmentVariable("MOOLTIPACK_DATA");
+            if (dirFromEnv != null)
+                { return dirFromEnv; }
+            else if (Environment.OSVersion.Platform == PlatformID.Unix)
+                { return $"%HOME%/.config/VintagestoryMooltiPack"; }
             else
-                {return $"%APPDATA%"; }
-            } }
-        public string InstallDir { get { 
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-                if (Environment.GetEnvironmentVariable("VINTAGE_STORY") != null )
-                    {return Environment.GetEnvironmentVariable("VINTAGE_STORY");}
-                else
-                    {return "/usr/share/vintagestory";}
+                { return $"%APPDATA%/VintagestoryMooltiPack"; }
+            }
+        }
+        public static string InstallDir { get {
+            var dirFromEnv = Environment.GetEnvironmentVariable("VINTAGE_STORY");
+            if (dirFromEnv != null)
+                { return dirFromEnv; }
+            else if (Environment.OSVersion.Platform == PlatformID.Unix)
+                { return "/usr/share/vintagestory"; }
             else
-                {return $"{ConfigDir}/VintageStory"; }
-            } }
-        public string ServerDir { get {return $"{ConfigDir}/VintagestoryMooltiPack/{SafeName}"; } }
+                { return $"%APPDATA%/VintageStory"; }
+            }
+        }
+        public static string DataDir { get {
+            var dirFromEnv = Environment.GetEnvironmentVariable("VINTAGE_STORY_DATA");
+            if (dirFromEnv != null)
+                { return dirFromEnv; }
+            else if (Environment.OSVersion.Platform == PlatformID.Unix)
+                { return "%HOME%/.config/VintagestoryData"; }
+            else
+                { return $"%APPDATA%/VintageStoryData"; }
+            }
+        }
+        public string ServerDir { get {return $"{ConfigDir}/{SafeName}"; } }
         private void InitDataDir(string hostname, int port, string password)
         {
             Directory.CreateDirectory(ResolvePath($"{ServerDir}/Mods"));
@@ -109,7 +124,7 @@ namespace VSAutoModLauncher
             string serverClientSettingsFilePath = $"{ServerDir}/clientsettings.json";
             if (!File.Exists(ResolvePath(serverClientSettingsFilePath)))
             {
-                string defaultClientSettingsFilePath = $"{ConfigDir}/VintagestoryData/clientsettings.json";
+                string defaultClientSettingsFilePath = $"{DataDir}/clientsettings.json";
                 Log($"Creating dataPath at {ServerDir}...");
                 if (!File.Exists(ResolvePath(defaultClientSettingsFilePath)))
                 {
@@ -139,7 +154,7 @@ namespace VSAutoModLauncher
             }
             else
             {
-                Log($"dataPath already exists at {ServerDir}");
+                // Log($"dataPath already exists at {ServerDir}");
                 // update server details, if they've changed!
                 clientSettings = JsonConvert.DeserializeObject(File.ReadAllText(ResolvePath(serverClientSettingsFilePath)));
                 var multiplayerServers = new JArray(clientSettings["stringListSettings"]["multiplayerservers"]);
@@ -278,16 +293,25 @@ namespace VSAutoModLauncher
             {
                 requiredModIds.Add(requiredMod.modId);
             }
+            var modsToDelete = new List<string>();
             foreach (var cachedModId in cacheData.modsDownloaded.Keys)
             {
                 var cachedMod = cacheData.modsDownloaded[cachedModId];
                 if (!requiredModIds.Contains(cachedModId))
                 {
-                    Log($"Removing disused mod '{cachedModId}'...");
-                    File.Delete(ResolvePath($"{ServerDir}/Mods/{cachedMod.fileName}"));
-                    cacheData.modsDownloaded.Remove(cachedModId);
-                    SaveCacheData();
+                    modsToDelete.Add(cachedModId);
                 }
+            }
+            if (modsToDelete.Count > 0)
+            {
+                foreach (var doomedModId in modsToDelete)
+                {
+                    Log($"Removing disused mod '{doomedModId}'...");
+                    var doomedMod = cacheData.modsDownloaded[doomedModId];
+                    File.Delete(ResolvePath($"{ServerDir}/Mods/{doomedMod.fileName}"));
+                    cacheData.modsDownloaded.Remove(doomedModId);
+                }
+                SaveCacheData();
             }
         }
         private void StartGame(string hostname, int port, string password)
@@ -297,7 +321,7 @@ namespace VSAutoModLauncher
             if (Environment.OSVersion.Platform == PlatformID.Unix)
                 { path = ResolvePath($"{InstallDir}/Vintagestory.exe");}
             else
-                { path = ResolvePath($"{ConfigDir}/VintageStory/VintageStory.exe"); };
+                { path = ResolvePath($"{InstallDir}/VintageStory.exe"); };
             string args = $"--dataPath \"{ResolvePath(ServerDir)}\" --c {hostname}:{port}";
             if (password != "")
             {

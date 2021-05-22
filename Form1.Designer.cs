@@ -29,6 +29,7 @@ namespace VSAutoModLauncher
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.listBox = new System.Windows.Forms.ListBox();
             this.deleteButton = new System.Windows.Forms.Button();
             this.connectButton = new System.Windows.Forms.Button();
@@ -147,9 +148,10 @@ namespace VSAutoModLauncher
             this.Controls.Add(this.deleteButton);
             this.Controls.Add(this.listBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "Form1";
-            this.Text = "MooltiPack Launcher for Vintage Story";
+            this.Text = "MooltiPack Launcher 1.1.0 for Vintage Story";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
